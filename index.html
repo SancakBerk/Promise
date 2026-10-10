@@ -33,12 +33,12 @@
   <button class="door" id="door" type="button" aria-label="Davetiyeyi açmak için dokunun">
     <span class="door__leaf door__leaf--left" aria-hidden="true">
       <span class="door__meadow"></span>
-      <span class="door__name">Aslı</span>
+      <span class="door__name"><picture><source type="image/webp" srcset="assets/img/isim-asli.webp"><img class="door__name-img" src="assets/img/isim-asli.png" alt="" width="576" height="392" decoding="async" fetchpriority="high"></picture></span>
       <span class="door__handle"></span>
     </span>
     <span class="door__leaf door__leaf--right" aria-hidden="true">
       <span class="door__meadow"></span>
-      <span class="door__name">Berk</span>
+      <span class="door__name"><picture><source type="image/webp" srcset="assets/img/isim-berk.webp"><img class="door__name-img" src="assets/img/isim-berk.png" alt="" width="604" height="392" decoding="async" fetchpriority="high"></picture></span>
       <span class="door__handle"></span>
     </span>
     <span class="door__seal" aria-hidden="true">
@@ -56,9 +56,8 @@
       <p class="eyebrow reveal">Söz İsteme Törenimize Davetlisiniz</p>
 
       <h1 class="names reveal">
-        <span class="names__one">Aslı</span>
-        <span class="names__amp" aria-label="ve">&amp;</span>
-        <span class="names__two">Berk</span>
+        <!-- Davetiyedeki el yazısı görsel olarak kullanılır (fontu yok) -->
+        <picture><source type="image/webp" srcset="assets/img/isimler.webp"><img class="names__img" src="assets/img/isimler.png" alt="Aslı &amp; Berk" width="1332" height="392" decoding="async"></picture>
       </h1>
 
       <p class="lead reveal">Bu özel günümüzde sizleri de aramızda görmekten mutluluk duyarız.</p>
@@ -91,9 +90,6 @@
         <p class="venue__time">Saat: 18.00 - 21.00</p>
       </div>
 
-      <a class="scroll-hint" href="#geri-sayim" aria-label="Aşağı kaydır">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
     </div>
 
     <picture class="meadow" aria-hidden="true">
@@ -101,6 +97,11 @@
       <source type="image/webp" srcset="assets/img/meadow-800.webp">
       <img src="assets/img/meadow-800.jpg" alt="" width="1602" height="715" decoding="async">
     </picture>
+
+    <!-- İlk ekranın altına sabit: her telefonda tamamen görünür -->
+    <a class="scroll-hint" href="#geri-sayim" aria-label="Aşağı kaydır">
+      <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
   </header>
 
   <main>
@@ -196,7 +197,7 @@
   </main>
 
   <footer class="footer">
-    <p class="footer__names">Aslı <span>&amp;</span> Berk</p>
+    <p class="footer__names"><picture><source type="image/webp" srcset="assets/img/isimler.webp"><img src="assets/img/isimler.png" alt="Aslı &amp; Berk" width="1332" height="392" loading="lazy" decoding="async"></picture></p>
     <p class="footer__date">14 · 11 · 2026</p>
     <picture class="meadow meadow--footer" aria-hidden="true">
       <source type="image/webp" srcset="assets/img/meadow-800.webp">

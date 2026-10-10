@@ -156,6 +156,25 @@ async function checkDoor(page, dev) {
   r.forEach((m) => fail(dev, `kapı: ${m}`));
 }
 
+// Aşağı kaydır oku: ilk ekranda tamamen görünür ve yazıların üstüne binmez
+async function checkScrollHint(page, dev) {
+  const r = await page.evaluate(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+    window.dispatchEvent(new Event("resize"));
+    const h = document.querySelector(".scroll-hint").getBoundingClientRect();
+    // İlk ekranda okun altında kalan yazı var mı
+    const rects = [], rg = document.createRange();
+    const w = document.createTreeWalker(document.querySelector(".hero__content"), NodeFilter.SHOW_TEXT);
+    for (let n = w.nextNode(); n; n = w.nextNode()) if (n.nodeValue.trim()) { rg.selectNodeContents(n); rects.push(...rg.getClientRects()); }
+    document.querySelectorAll(".hero__content img, .date__side").forEach((e) => rects.push(e.getBoundingClientRect()));
+    const t = rects.reduce((m, b) => (b.height && h.left < b.right && b.left < h.right && h.top < b.bottom && b.top < h.bottom ? b : m), { bottom: -1e9 });
+    const heroFits = document.querySelector(".hero").getBoundingClientRect().height <= innerHeight + 1;
+    return { inView: h.top >= 0 && h.bottom <= innerHeight + 1, overlap: t.bottom > -1e9, heroFits };
+  });
+  if (!r.inView) fail(dev, "kaydırma oku ilk ekranda tam görünmüyor");
+  if (r.overlap) console.log(`  · [${dev}] ok ilk ekranda yazının üstünde (köşede de yer yok)`);
+}
+
 async function checkCountdown(page, dev) {
   const read = () => page.$$eval("[data-unit]", (els) => els.map((e) => e.textContent));
   const a = await read();
@@ -201,6 +220,7 @@ async function checkLinks(page, dev) {
     await page.waitForTimeout(900);
     const before = failures;
     const r = await checkLayout(page, d.name);
+    await checkScrollHint(page, d.name);
     const cd = await checkCountdown(page, d.name);
     if (d === DEVICES[0]) await checkLinks(page, d.name);
     errors.forEach((e) => fail(d.name, `JS hatası: ${e}`));

@@ -153,6 +153,42 @@
     Array.prototype.forEach.call(reveals, function (el) { el.classList.add("is-in"); });
   }
 
+  /* ---------------- Aşağı kaydır oku ---------------- */
+  var hint = document.querySelector(".scroll-hint");
+  if (hint) {
+    var onScroll = function () { hint.classList.toggle("is-hidden", window.scrollY > 40); };
+    // Ortada yazının üstüne biniyorsa sağ alt köşeye geç (yazılar ortalı, köşe genelde boş)
+    var content = document.querySelector(".hero__content");
+    var covers = function () {
+      // Kutuların değil, yazının ve çizgilerin gerçekte kapladığı alan ölçülür
+      var h = hint.getBoundingClientRect(), pad = 6, range = document.createRange(), rects = [];
+      var walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT);
+      for (var n = walker.nextNode(); n; n = walker.nextNode()) {
+        if (!n.nodeValue.trim()) continue;
+        range.selectNodeContents(n);
+        Array.prototype.push.apply(rects, range.getClientRects());
+      }
+      Array.prototype.forEach.call(content.querySelectorAll("img, .date__side"), function (el) { rects.push(el.getBoundingClientRect()); });
+      return rects.some(function (b) {
+        return b.height && h.left - pad < b.right && b.left < h.right + pad && h.top - pad < b.bottom && b.top < h.bottom + pad;
+      });
+    };
+    var place = function () {
+      if (window.scrollY > 40) return;
+      hint.classList.remove("is-corner");
+      if (covers()) {
+        hint.classList.add("is-corner");
+        if (covers()) hint.classList.remove("is-corner");
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", place);
+    window.addEventListener("load", place);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
+    onScroll();
+    place();
+  }
+
   /* ---------------- Yüzen "Yol Tarifi" butonu ---------------- */
   var fab = document.getElementById("fab");
   var hero = document.getElementById("davetiye");

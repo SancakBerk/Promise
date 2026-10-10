@@ -100,23 +100,12 @@ p { margin: 0; }
 
 .names {
   margin: 0;
-  font-family: var(--font-script);
-  font-weight: 400;
-  color: var(--olive);
-  line-height: 1.05;
-  font-size: clamp(64px, 21vw, 132px);
   display: flex;
   justify-content: center;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0 .14em;
-  padding: .05em 0 .1em;
+  padding: 2px 0 4px;
 }
-.names__amp {
-  font-size: .5em;
-  color: var(--olive-soft);
-  transform: translateY(-.15em);
-}
+.names__img { width: min(92vw, 560px); height: auto; }
+@media (orientation: landscape) and (max-height: 500px) { .names__img { width: min(60vw, 440px); } }
 
 .lead {
   max-width: 30em;
@@ -198,12 +187,36 @@ p { margin: 0; }
 .venue__addr--small { font-size: clamp(14px, 3.8vw, 17px); letter-spacing: .08em; margin-top: 0; }
 .venue__time { font-size: clamp(14px, 3.6vw, 16px); letter-spacing: .08em; color: var(--muted); margin-top: 8px; }
 
+/* Ekranın altına sabit; ziyaretçi kaydırmaya başlayınca kaybolur */
 .scroll-hint {
-  display: inline-flex;
-  margin-top: clamp(10px, 2.5vh, 22px);
-  padding: 8px;
-  color: var(--olive-soft);
-  animation: bob 2.4s ease-in-out infinite;
+  position: fixed;
+  z-index: 3;
+  left: 0;
+  right: 0;
+  bottom: calc(clamp(18px, 4vh, 40px) + 14px + env(safe-area-inset-bottom, 0px));
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--olive);
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(247, 246, 243, .85), 0 8px 20px rgba(31, 29, 28, .35);
+  animation: bob 1.3s cubic-bezier(.5, 0, .5, 1) infinite;
+}
+.scroll-hint { transition: opacity .35s ease, visibility .35s; }
+.scroll-hint.is-hidden, .is-door-closed .scroll-hint { opacity: 0; visibility: hidden; }
+.scroll-hint.is-corner { left: auto; right: calc(var(--gutter) + env(safe-area-inset-right, 0px)); }
+/* Etrafında yayılan halka, okun çayırdan ayrılmasını sağlar */
+.scroll-hint::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--olive);
+  animation: hint-ring 1.3s ease-out infinite;
 }
 
 /* Suluboya çayır */
@@ -403,8 +416,8 @@ main { position: relative; z-index: 1; }
   padding-top: clamp(32px, 8vw, 60px);
   overflow: hidden;
 }
-.footer__names { font-family: var(--font-script); color: var(--olive); font-size: clamp(44px, 13vw, 72px); line-height: 1.1; }
-.footer__names span { font-size: .55em; color: var(--olive-soft); }
+.footer__names { display: flex; justify-content: center; margin-bottom: 4px; }
+.footer__names img { width: min(72vw, 340px); height: auto; }
 .footer__date { font-family: var(--font-caps); letter-spacing: .3em; color: var(--muted); font-size: clamp(13px, 3.6vw, 16px); }
 .meadow--footer { margin-top: 4px; }
 .meadow--footer img { max-height: 30vh; min-height: 140px; padding-bottom: var(--safe-bottom); background: #b9c79a; }
@@ -480,6 +493,7 @@ main { position: relative; z-index: 1; }
   --seal: clamp(60px, min(20vw, 17vh), 108px);
   --name: clamp(40px, min(15vw, 19vh), 110px);
   --gap: clamp(10px, 2.5vh, 24px);
+  --name-h: calc(var(--name) * 1.5);
   transform-origin: 50% 50%;
   overflow: hidden;
   transition: transform 1.7s cubic-bezier(.55, 0, .25, 1), opacity .7s ease 1.05s;
@@ -550,14 +564,11 @@ main { position: relative; z-index: 1; }
 .door__name {
   position: relative;
   /* İsmin alt kenarı mührün bir boşluk üstünde biter */
-  margin-top: calc(-1 * (var(--name) + var(--seal) + 2 * var(--gap)));
-  padding: 0 clamp(26px, 9vw, 70px);
-  font-family: var(--font-script);
-  color: var(--olive);
-  font-size: var(--name);
-  line-height: 1;
-  white-space: nowrap;
+  margin-top: calc(-1 * (var(--name-h) + var(--seal) + 2 * var(--gap)));
+  padding: 0 clamp(14px, 5vw, 50px);
+  line-height: 0;
 }
+.door__name-img { height: var(--name-h); width: auto; max-width: none; }
 .door__handle {
   position: absolute;
   top: 50%;
@@ -632,11 +643,12 @@ main { position: relative; z-index: 1; }
 .js .reveal { opacity: 0; transform: translateY(14px); transition: opacity .8s ease, transform .8s ease; }
 .js .reveal.is-in { opacity: 1; transform: none; }
 
-@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(14px); } }
+@keyframes hint-ring { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(1.7); opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .scroll-hint { animation: none; }
+  .scroll-hint, .scroll-hint::after { animation: none; }
   .js .reveal { opacity: 1; transform: none; transition: none; }
   .fab, .toast, .btn { transition: none; }
   .js .door { transition: opacity .4s ease; }
@@ -662,7 +674,6 @@ main { position: relative; z-index: 1; }
 /* Yatay telefon: hero tam ekranı zorlamasın */
 @media (orientation: landscape) and (max-height: 500px) {
   .hero { min-height: 0; }
-  .names { font-size: clamp(54px, 10vw, 96px); }
   .meadow img { max-height: 60vh; }
   .map { aspect-ratio: 16 / 9; }
 }
