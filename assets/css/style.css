@@ -15,7 +15,7 @@
   --daisy: #e3a72f;
   --radius: 14px;
 
-  --font-script: "Great Vibes", "Snell Roundhand", "Apple Chancery", cursive;
+  --font-script: "Ms Madi", "Snell Roundhand", "Apple Chancery", cursive;
   --font-serif: "Cormorant Garamond", "Cormorant", Georgia, "Times New Roman", serif;
   --font-caps: "Marcellus", "Cormorant Garamond", Georgia, serif;
 
@@ -104,7 +104,7 @@ p { margin: 0; }
   font-weight: 400;
   color: var(--olive);
   line-height: 1.05;
-  font-size: clamp(58px, 19vw, 118px);
+  font-size: clamp(64px, 21vw, 132px);
   display: flex;
   justify-content: center;
   align-items: baseline;
@@ -112,9 +112,6 @@ p { margin: 0; }
   gap: 0 .14em;
   padding: .05em 0 .1em;
 }
-/* Great Vibes'ın büyük A'sı küçük "a" gibi okunuyor; Aslı'nın baş harfi
-   açıkça büyük A olsun diye yalnız bu harf Pinyon Script ile yazılır */
-.cap-a { font-family: "Pinyon Script", var(--font-script); font-size: 1.1em; line-height: 0; }
 .names__amp {
   font-size: .5em;
   color: var(--olive-soft);
@@ -407,7 +404,7 @@ main { position: relative; z-index: 1; }
   overflow: hidden;
 }
 .footer__names { font-family: var(--font-script); color: var(--olive); font-size: clamp(44px, 13vw, 72px); line-height: 1.1; }
-.footer__names span:not(.cap-a) { font-size: .55em; color: var(--olive-soft); }
+.footer__names span { font-size: .55em; color: var(--olive-soft); }
 .footer__date { font-family: var(--font-caps); letter-spacing: .3em; color: var(--muted); font-size: clamp(13px, 3.6vw, 16px); }
 .meadow--footer { margin-top: 4px; }
 .meadow--footer img { max-height: 30vh; min-height: 140px; padding-bottom: var(--safe-bottom); background: #b9c79a; }

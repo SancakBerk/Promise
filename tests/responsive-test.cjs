@@ -93,7 +93,7 @@ async function checkLayout(page, dev) {
     const names = document.querySelector(".names").getBoundingClientRect();
     const nameLines = Math.round(names.height / parseFloat(getComputedStyle(document.querySelector(".names")).fontSize) / 1.05);
     return { vw, scrollW, offenders, smallTargets, clipped, nameLines,
-      fonts: ["Great Vibes", "Cormorant Garamond", "Marcellus"].map((f) => [f, document.fonts.check(`16px "${f}"`)]) };
+      fonts: ["Ms Madi", "Cormorant Garamond", "Marcellus"].map((f) => [f, document.fonts.check(`16px "${f}"`)]) };
   });
   if (r.scrollW > r.vw) fail(dev, `yatay taşma: scrollWidth ${r.scrollW} > ${r.vw}`);
   if (r.offenders.length) fail(dev, `ekran dışına taşan öğeler: ${r.offenders.slice(0, 5).join(", ")}`);
