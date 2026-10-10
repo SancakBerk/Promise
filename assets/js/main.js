@@ -1,7 +1,30 @@
 (function () {
   "use strict";
 
-  document.documentElement.classList.add("js");
+  var root = document.documentElement;
+  root.classList.add("js");
+
+  /* ---------------- Giriş kapısı ---------------- */
+  var door = document.getElementById("door");
+  if (door) {
+    var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var openDoor = function () {
+      if (door.classList.contains("is-opening")) return;
+      window.scrollTo(0, 0);
+      door.classList.add("is-opening");
+      // Kanatlar aralanırken davetiye canlanmaya başlar
+      setTimeout(function () { root.classList.remove("is-door-closed"); }, reduced ? 0 : 450);
+      setTimeout(function () {
+        door.parentNode.removeChild(door);
+        var skip = document.querySelector(".hero");
+        if (skip) { skip.setAttribute("tabindex", "-1"); skip.focus({ preventScroll: true }); }
+      }, reduced ? 450 : 1850);
+    };
+    door.addEventListener("click", openDoor);
+    door.focus({ preventScroll: true });
+  } else {
+    root.classList.remove("is-door-closed");
+  }
 
   // Etkinlik zamanı İstanbul saatine (UTC+3, yaz saati yok) sabitlenmiştir;
   // misafirin telefonu hangi saat diliminde olursa olsun doğru sayar.

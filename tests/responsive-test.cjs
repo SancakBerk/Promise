@@ -55,6 +55,12 @@ const DEVICES = [
   { name: "Masaüstü 1920x1080", viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1, isMobile: false, hasTouch: false },
 ];
 
+// Giriş kapısını açıp animasyonun bitmesini bekler
+async function openDoor(page) {
+  await page.click("#door");
+  await page.waitForSelector("#door", { state: "detached", timeout: 4000 });
+}
+
 let failures = 0;
 const fail = (dev, msg) => { failures++; console.log(`  ✗ [${dev}] ${msg}`); };
 
@@ -131,6 +137,8 @@ async function checkLinks(page, dev) {
     page.on("console", (m) => { if (m.type() === "error" && !/google|gstatic|maps/i.test(m.text())) errors.push(m.text()); });
     await page.goto(BASE_URL, { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
+    await page.screenshot({ path: path.join(OUT, "door_" + d.name.replace(/[^\w]+/g, "_") + ".png") });
+    await openDoor(page);
     // Tüm reveal animasyonlarını tetiklemek için sayfayı baştan sona kaydır
     await page.evaluate(async () => {
       for (let y = 0; y < document.body.scrollHeight; y += window.innerHeight / 2) { window.scrollTo({ top: y, behavior: "instant" }); await new Promise((r) => setTimeout(r, 60)); }
@@ -188,6 +196,7 @@ async function checkLinks(page, dev) {
     await ctx.route(/wa\.me|whatsapp/, (r) => r.fulfill({ body: "ok", contentType: "text/html" }));
     const page = await ctx.newPage();
     await page.goto(BASE_URL);
+    await openDoor(page);
     await page.click("#btn-copy-address");
     await page.waitForTimeout(200);
     const clip = await page.evaluate(() => navigator.clipboard.readText());
@@ -202,6 +211,32 @@ async function checkLinks(page, dev) {
     await ctx.close();
   }
 
+  console.log("\n== Giriş kapısı ==");
+  {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const page = await ctx.newPage();
+    await page.goto(BASE_URL);
+    const before = await page.evaluate(() => ({
+      covers: (() => { const b = document.getElementById("door").getBoundingClientRect(); return b.width >= innerWidth && b.height >= innerHeight; })(),
+      locked: getComputedStyle(document.body).overflow === "hidden",
+      names: getComputedStyle(document.querySelector(".names")).opacity,
+    }));
+    if (!before.covers) fail("kapı", "kapı ekranı kaplamıyor");
+    if (!before.locked) fail("kapı", "kapı kapalıyken sayfa kayıyor");
+    if (before.names !== "0") fail("kapı", `kapı kapalıyken davetiye görünüyor (opacity ${before.names})`);
+    await page.keyboard.press("Enter");
+    await page.waitForSelector("#door", { state: "detached", timeout: 4000 }).catch(() => fail("kapı", "Enter ile açılmadı"));
+    await page.waitForTimeout(900);
+    const after = await page.evaluate(() => ({
+      names: getComputedStyle(document.querySelector(".names")).opacity,
+      locked: getComputedStyle(document.body).overflow === "hidden",
+    }));
+    if (after.names !== "1") fail("kapı", `açılınca isimler görünmüyor (opacity ${after.names})`);
+    if (after.locked) fail("kapı", "açılınca sayfa kaymıyor");
+    console.log(`  ${before.covers && before.locked && after.names === "1" && !after.locked ? "✓" : "✗"} kapalı: kaplıyor+kilitli · Enter ile açıldı · davetiye görünür`);
+    await ctx.close();
+  }
+
   console.log("\n== JavaScript kapalıyken içerik görünür mü ==");
   {
     const ctx = await browser.newContext({ viewport: { width: 375, height: 667 }, javaScriptEnabled: false });
@@ -209,6 +244,8 @@ async function checkLinks(page, dev) {
     await page.goto(BASE_URL);
     const op = await page.$eval(".names", (e) => getComputedStyle(e).opacity);
     if (op !== "1") fail("JS kapalı", `isimler görünmüyor (opacity ${op})`);
+    const doorShown = await page.$eval("#door", (e) => getComputedStyle(e).display !== "none");
+    if (doorShown) fail("JS kapalı", "kapı açılamayacakken görünüyor");
     console.log(`  ${op === "1" ? "✓" : "✗"} isim opaklığı ${op}`);
     await ctx.close();
   }

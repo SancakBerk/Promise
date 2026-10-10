@@ -112,6 +112,8 @@ p { margin: 0; }
   gap: 0 .14em;
   padding: .05em 0 .1em;
 }
+/* Great Vibes'ın büyük A'sı küçük harf gibi duruyor; B ile aynı boya getir */
+.cap-a { font-size: 1.28em; line-height: 0; }
 .names__amp {
   font-size: .5em;
   color: var(--olive-soft);
@@ -405,7 +407,7 @@ main { position: relative; z-index: 1; }
   overflow: hidden;
 }
 .footer__names { font-family: var(--font-script); color: var(--olive); font-size: clamp(44px, 13vw, 72px); line-height: 1.1; }
-.footer__names span { font-size: .55em; color: var(--olive-soft); }
+.footer__names span:not(.cap-a) { font-size: .55em; color: var(--olive-soft); }
 .footer__date { font-family: var(--font-caps); letter-spacing: .3em; color: var(--muted); font-size: clamp(13px, 3.6vw, 16px); }
 .meadow--footer { margin-top: 4px; }
 .meadow--footer img { max-height: 30vh; min-height: 140px; padding-bottom: var(--safe-bottom); background: #b9c79a; }
@@ -458,6 +460,168 @@ main { position: relative; z-index: 1; }
 }
 .toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
 
+
+/* ================= GİRİŞ KAPISI ================= */
+/* Ortadan ikiye ayrılan iki kanat; dokununca açılır ve kamera içeri girer */
+.door { display: none; }
+.js .door {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  perspective: 1400px;
+  perspective-origin: 50% 50%;
+  transform-origin: 50% 50%;
+  overflow: hidden;
+  transition: transform 1.7s cubic-bezier(.55, 0, .25, 1), opacity .7s ease 1.05s;
+}
+.door:focus-visible, .hero:focus { outline: none; }
+.door:focus-visible .door__seal { outline: 2px solid var(--olive); outline-offset: 4px; }
+
+.door__leaf {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50.2%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background-color: var(--paper);
+  transition: transform 1.5s cubic-bezier(.6, .02, .2, 1) .25s;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.door__leaf--left {
+  left: 0;
+  justify-content: flex-end;
+  transform-origin: 0 50%;
+  box-shadow: inset -10px 0 18px -14px rgba(31, 29, 28, .45);
+}
+.door__leaf--right {
+  right: 0;
+  justify-content: flex-start;
+  transform-origin: 100% 50%;
+  box-shadow: inset 10px 0 18px -14px rgba(31, 29, 28, .45);
+}
+/* Çayır iki kanada tek parça gibi yayılır, ortadan bölünür */
+.door__meadow {
+  position: absolute;
+  bottom: 0;
+  width: 100vw;
+  height: clamp(200px, 44.6vw, 46vh);
+  background: url("../img/meadow-800.webp") center top / cover no-repeat;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.55) 18%, #000 34%);
+  mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.55) 18%, #000 34%);
+}
+.door__leaf--left .door__meadow  { left: 0; }
+.door__leaf--right .door__meadow { right: 0; }
+@media (min-width: 801px) { .door__meadow { background-image: url("../img/meadow.webp"); } }
+/* Geniş/yatay ekranda çayır kapı kolunu ve yazıyı örtmesin */
+@media (min-aspect-ratio: 4/3) { .door__meadow { height: 30vh; min-height: 120px; } }
+/* Kanatlardaki ince çift çerçeve */
+.door__leaf::before,
+.door__leaf::after {
+  content: "";
+  position: absolute;
+  top: calc(clamp(14px, 3vw, 28px) + env(safe-area-inset-top, 0px));
+  bottom: clamp(14px, 3vw, 28px);
+  border: 1px solid var(--olive-soft);
+  opacity: .45;
+  pointer-events: none;
+}
+.door__leaf::after { opacity: .25; }
+.door__leaf--left::before  { left: clamp(14px, 3vw, 28px); right: 8px; border-radius: 120px 0 0 0 / 120px 0 0 0; }
+.door__leaf--left::after   { left: calc(clamp(14px, 3vw, 28px) + 6px); right: 14px; top: calc(clamp(14px, 3vw, 28px) + 6px + env(safe-area-inset-top, 0px)); bottom: calc(clamp(14px, 3vw, 28px) + 6px); border-radius: 114px 0 0 0 / 114px 0 0 0; }
+.door__leaf--right::before { right: clamp(14px, 3vw, 28px); left: 8px; border-radius: 0 120px 0 0 / 0 120px 0 0; }
+.door__leaf--right::after  { right: calc(clamp(14px, 3vw, 28px) + 6px); left: 14px; top: calc(clamp(14px, 3vw, 28px) + 6px + env(safe-area-inset-top, 0px)); bottom: calc(clamp(14px, 3vw, 28px) + 6px); border-radius: 0 114px 0 0 / 0 114px 0 0; }
+
+.door__name {
+  position: relative;
+  margin-top: -22vh;
+  padding: 0 clamp(26px, 9vw, 70px);
+  font-family: var(--font-script);
+  color: var(--olive);
+  font-size: clamp(44px, 15vw, 110px);
+  line-height: 1;
+  white-space: nowrap;
+}
+.door__handle {
+  position: absolute;
+  top: 50%;
+  width: 5px;
+  height: clamp(54px, 12vh, 90px);
+  margin-top: calc(clamp(76px, 20vw, 108px) / 2 + 62px);
+  border-radius: 4px;
+  background: linear-gradient(90deg, #b88a2a, #f0cd7a 45%, #a97c22);
+  box-shadow: 0 2px 4px rgba(31, 29, 28, .25);
+}
+.door__leaf--left .door__handle  { right: 18px; }
+.door__leaf--right .door__handle { left: 18px; }
+
+/* Ortadaki mühür */
+.door__seal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(76px, 20vw, 108px);
+  height: clamp(76px, 20vw, 108px);
+  margin: calc(clamp(76px, 20vw, 108px) / -2) 0 0 calc(clamp(76px, 20vw, 108px) / -2);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--olive);
+  color: var(--paper);
+  box-shadow: 0 0 0 4px var(--paper), 0 0 0 5px rgba(71, 80, 40, .5), 0 8px 22px rgba(31, 29, 28, .28);
+  transition: transform .45s ease, opacity .45s ease;
+  animation: seal-pulse 2.6s ease-in-out infinite;
+}
+.door__seal svg { width: 34%; height: 34%; }
+.door__amp { font-family: var(--font-script); font-size: clamp(26px, 7vw, 38px); line-height: .8; margin-top: 2px; }
+
+.door__hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(50% + clamp(76px, 20vw, 108px) / 2 + 22px);
+  padding: 0 var(--gutter);
+  font-family: var(--font-caps);
+  font-size: clamp(11px, 3vw, 14px);
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--olive-dark);
+  text-align: center;
+  transition: opacity .35s ease;
+}
+
+@keyframes seal-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Açılış: mühür kırılır, kanatlar açılır, içeri girilir */
+.door.is-opening { pointer-events: none; transform: scale(1.35); opacity: 0; }
+.door.is-opening .door__seal { animation: none; transform: scale(.4); opacity: 0; }
+.door.is-opening .door__hint { opacity: 0; }
+.door.is-opening .door__leaf--left  { transform: rotateY(-112deg); }
+.door.is-opening .door__leaf--right { transform: rotateY(112deg); }
+
+/* Kapı kapalıyken sayfa kaymaz; davetiye arkada hafif uzakta bekler */
+.is-door-closed body { overflow: hidden; }
+.js .hero__content { transition: transform 1.8s cubic-bezier(.55, 0, .25, 1); }
+.is-door-closed .hero__content { transform: scale(.9); }
+.js.is-door-closed .reveal.is-in { opacity: 0; transform: translateY(14px); }
+.is-door-closed .fab { opacity: 0; pointer-events: none; }
+
 /* ================= ANİMASYONLAR ================= */
 /* İçerik JS olmadan da görünür; yalnızca JS çalışırsa yumuşak giriş eklenir */
 .js .reveal { opacity: 0; transform: translateY(14px); transition: opacity .8s ease, transform .8s ease; }
@@ -470,6 +634,11 @@ main { position: relative; z-index: 1; }
   .scroll-hint { animation: none; }
   .js .reveal { opacity: 1; transform: none; transition: none; }
   .fab, .toast, .btn { transition: none; }
+  .js .door { transition: opacity .4s ease; }
+  .door.is-opening { transform: none; }
+  .door__leaf, .js .hero__content { transition: none; }
+  .door__seal { animation: none; }
+  .door.is-opening .door__leaf--left, .door.is-opening .door__leaf--right { transform: none; }
 }
 
 /* ================= KÜÇÜK EKRANLAR ================= */
