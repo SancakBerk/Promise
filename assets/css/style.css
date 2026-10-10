@@ -178,10 +178,10 @@ p { margin: 0; }
 .venue__addr--small { font-size: clamp(14px, 3.8vw, 17px); letter-spacing: .08em; margin-top: 0; }
 .venue__time { font-size: clamp(14px, 3.6vw, 16px); letter-spacing: .08em; color: var(--muted); margin-top: 8px; }
 
-/* Ekranın altına sabit; ziyaretçi kaydırmaya başlayınca kaybolur */
+/* Ekranın altına sabit; sayfanın sonuna gelince kaybolur */
 .scroll-hint {
   position: fixed;
-  z-index: 3;
+  z-index: 45;
   left: 0;
   right: 0;
   bottom: calc(clamp(18px, 4vh, 40px) + 14px + env(safe-area-inset-bottom, 0px));

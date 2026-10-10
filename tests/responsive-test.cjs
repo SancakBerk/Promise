@@ -311,6 +311,34 @@ async function checkLinks(page, dev) {
     await ctx.close();
   }
 
+  console.log("\n== Kaydırma oku: sona kadar görünür, sonraki bölüme geçer ==");
+  {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 664 }, isMobile: true, hasTouch: true });
+    const page = await ctx.newPage();
+    await page.goto(BASE_URL);
+    await openDoor(page);
+    const visible = () => page.$eval(".scroll-hint", (e) => getComputedStyle(e).visibility === "visible" && !e.classList.contains("is-hidden"));
+    const steps = [];
+    for (let i = 0; i < 8; i++) {
+      if (!(await visible())) break;
+      await page.click(".scroll-hint", { force: true }); // ok sürekli zıpladığı için "durağan" beklenmez
+      await page.waitForTimeout(1200);
+      steps.push(await page.evaluate(() => Math.round(scrollY)));
+    }
+    const endHidden = !(await visible());
+    const atEnd = await page.evaluate(() => scrollY + innerHeight >= document.documentElement.scrollHeight - 60);
+    const increasing = steps.every((y, i) => i === 0 || y > steps[i - 1]);
+    if (steps.length < 4) fail("kaydırma oku", `bölümler arasında yeterince ilerlemedi: ${steps}`);
+    if (!increasing) fail("kaydırma oku", `geri gitti: ${steps}`);
+    if (!atEnd || !endHidden) fail("kaydırma oku", `sonda kaybolmadı (sonda: ${atEnd}, gizli: ${endHidden})`);
+    await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight / 2, behavior: "instant" }));
+    await page.waitForTimeout(400);
+    const midVisible = await visible();
+    if (!midVisible) fail("kaydırma oku", "sayfanın ortasında görünmüyor");
+    console.log(`  ${steps.length >= 4 && increasing && atEnd && endHidden && midVisible ? "✓" : "✗"} ${steps.length} dokunuşta sona geldi (${steps.join(" → ")}) · ortada görünür · sonda gizli`);
+    await ctx.close();
+  }
+
   console.log("\n== JavaScript kapalıyken içerik görünür mü ==");
   {
     const ctx = await browser.newContext({ viewport: { width: 375, height: 667 }, javaScriptEnabled: false });

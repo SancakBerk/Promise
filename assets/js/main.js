@@ -156,7 +156,6 @@
   /* ---------------- Aşağı kaydır oku ---------------- */
   var hint = document.querySelector(".scroll-hint");
   if (hint) {
-    var onScroll = function () { hint.classList.toggle("is-hidden", window.scrollY > 40); };
     // Ortada yazının üstüne biniyorsa sağ alt köşeye geç (yazılar ortalı, köşe genelde boş)
     var content = document.querySelector(".hero__content");
     var covers = function () {
@@ -181,8 +180,22 @@
         if (covers()) hint.classList.remove("is-corner");
       }
     };
+    // Sayfanın sonuna gelene kadar görünür kalır
+    var atEnd = function () { return window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 60; };
+    var onScroll = function () {
+      hint.classList.toggle("is-hidden", atEnd());
+      // Köşe yalnız ilk ekranda; aşağıda "Yol Tarifi" butonuyla çakışmasın diye ortada durur
+      if (window.scrollY > 40) hint.classList.remove("is-corner"); else place();
+    };
+    // Her dokunuşta bir sonraki bölüme kaydırır
+    var stops = document.querySelectorAll("main > section, .footer");
+    hint.addEventListener("click", function (e) {
+      e.preventDefault();
+      var next = Array.prototype.find.call(stops, function (el) { return el.getBoundingClientRect().top > 8; });
+      if (next) next.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", place);
+    window.addEventListener("resize", onScroll);
     window.addEventListener("load", place);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
     onScroll();
