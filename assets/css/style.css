@@ -514,6 +514,9 @@ main { position: relative; z-index: 1; }
   bottom: 0;
   width: 100vw;
   height: clamp(200px, 44.6vw, 46vh);
+  /* Kısa ekranlarda çayır "dokunun" yazısının altında kalsın */
+  height: min(clamp(200px, 44.6vw, 46vh), calc((50vh - 100px) / .85));
+  min-height: 90px;
   background: url("../img/meadow-800.webp") center top / cover no-repeat;
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.55) 18%, #000 34%);
   mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.55) 18%, #000 34%);
