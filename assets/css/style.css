@@ -476,6 +476,10 @@ main { position: relative; z-index: 1; }
   cursor: pointer;
   perspective: 1400px;
   perspective-origin: 50% 50%;
+  /* Ölçüler hem genişliğe hem yüksekliğe bakar: uzun ince, kısa geniş ve yatay ekranlarda orantılı kalır */
+  --seal: clamp(60px, min(20vw, 17vh), 108px);
+  --name: clamp(40px, min(15vw, 19vh), 110px);
+  --gap: clamp(10px, 2.5vh, 24px);
   transform-origin: 50% 50%;
   overflow: hidden;
   transition: transform 1.7s cubic-bezier(.55, 0, .25, 1), opacity .7s ease 1.05s;
@@ -525,7 +529,7 @@ main { position: relative; z-index: 1; }
 .door__leaf--right .door__meadow { right: 0; }
 @media (min-width: 801px) { .door__meadow { background-image: url("../img/meadow.webp"); } }
 /* Geniş/yatay ekranda çayır kapı kolunu ve yazıyı örtmesin */
-@media (min-aspect-ratio: 4/3) { .door__meadow { height: 30vh; min-height: 120px; } }
+@media (min-aspect-ratio: 1/1) { .door__meadow { height: min(30vh, calc((50vh - 100px) / .85)); } }
 /* Kanatlardaki ince çift çerçeve */
 .door__leaf::before,
 .door__leaf::after {
@@ -545,11 +549,12 @@ main { position: relative; z-index: 1; }
 
 .door__name {
   position: relative;
-  margin-top: -22vh;
+  /* İsmin alt kenarı mührün bir boşluk üstünde biter */
+  margin-top: calc(-1 * (var(--name) + var(--seal) + 2 * var(--gap)));
   padding: 0 clamp(26px, 9vw, 70px);
   font-family: var(--font-script);
   color: var(--olive);
-  font-size: clamp(44px, 15vw, 110px);
+  font-size: var(--name);
   line-height: 1;
   white-space: nowrap;
 }
@@ -557,8 +562,8 @@ main { position: relative; z-index: 1; }
   position: absolute;
   top: 50%;
   width: 5px;
-  height: clamp(54px, 12vh, 90px);
-  margin-top: calc(clamp(76px, 20vw, 108px) / 2 + 62px);
+  height: clamp(30px, 11vh, 90px);
+  margin-top: calc(var(--seal) / 2 + var(--gap) + 2.6em + var(--gap));
   border-radius: 4px;
   background: linear-gradient(90deg, #b88a2a, #f0cd7a 45%, #a97c22);
   box-shadow: 0 2px 4px rgba(31, 29, 28, .25);
@@ -571,9 +576,9 @@ main { position: relative; z-index: 1; }
   position: absolute;
   left: 50%;
   top: 50%;
-  width: clamp(76px, 20vw, 108px);
-  height: clamp(76px, 20vw, 108px);
-  margin: calc(clamp(76px, 20vw, 108px) / -2) 0 0 calc(clamp(76px, 20vw, 108px) / -2);
+  width: var(--seal);
+  height: var(--seal);
+  margin: calc(var(--seal) / -2) 0 0 calc(var(--seal) / -2);
   border-radius: 50%;
   display: flex;
   flex-direction: column;
@@ -586,13 +591,13 @@ main { position: relative; z-index: 1; }
   animation: seal-pulse 2.6s ease-in-out infinite;
 }
 .door__seal svg { width: 34%; height: 34%; }
-.door__amp { font-family: var(--font-script); font-size: clamp(26px, 7vw, 38px); line-height: .8; margin-top: 2px; }
+.door__amp { font-family: var(--font-script); font-size: calc(var(--seal) * .36); line-height: .8; margin-top: 2px; }
 
 .door__hint {
   position: absolute;
   left: 0;
   right: 0;
-  top: calc(50% + clamp(76px, 20vw, 108px) / 2 + 22px);
+  top: calc(50% + var(--seal) / 2 + var(--gap));
   padding: 0 var(--gutter);
   font-family: var(--font-caps);
   font-size: clamp(11px, 3vw, 14px);

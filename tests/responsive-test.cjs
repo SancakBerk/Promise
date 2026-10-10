@@ -61,12 +61,19 @@ const DEVICES = [
   custom("iPad yatay 1024x768", 1024, 768),
   custom("Çok kısa yatay telefon 568x320", 568, 320),
   custom("Galaxy S24 Ultra yatay 915x412", 915, 412),
+  custom("Uzun ince 360x900", 360, 900),
+  custom("Kısa geniş 480x720", 480, 720),
+  custom("Galaxy Z Flip açık 412x1004", 412, 1004),
   pick("iPad Mini"),
   pick("Galaxy Tab S4"),
   pick("iPad Pro 11"),
   pick("iPhone 13 landscape"),
   pick("Galaxy S8 landscape"),
   pick("Pixel 7 landscape"),
+  pick("iPad Mini landscape"),
+  pick("iPad Pro 11 landscape"),
+  custom("Galaxy Z Fold (açık, yatay) 837x690", 837, 690),
+  custom("Kısa yatay telefon 640x320", 640, 320),
   { name: "Masaüstü 1366x768", viewport: { width: 1366, height: 768 }, deviceScaleFactor: 1, isMobile: false, hasTouch: false },
   { name: "Masaüstü 1920x1080", viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1, isMobile: false, hasTouch: false },
 ];
@@ -119,6 +126,36 @@ async function checkLayout(page, dev) {
   return r;
 }
 
+// Kapı: her parça ekranda, isimler kanadına sığıyor, parçalar üst üste binmiyor
+async function checkDoor(page, dev) {
+  const r = await page.evaluate(() => {
+    const vw = innerWidth, vh = innerHeight;
+    const q = (s) => document.querySelector(s).getBoundingClientRect();
+    const box = (b) => ({ l: b.left, r: b.right, t: b.top, b: b.bottom });
+    // İsimlerde dolgu değil harflerin kendisi ölçülür
+    const text = (sel) => { const g = document.createRange(); g.selectNodeContents(document.querySelector(sel)); return g.getBoundingClientRect(); };
+    const parts = {
+      "sol isim": box(text(".door__leaf--left .door__name")), "sağ isim": box(text(".door__leaf--right .door__name")),
+      "mühür": box(q(".door__seal")), "yazı": box(q(".door__hint")),
+      "sol kol": box(q(".door__leaf--left .door__handle")), "sağ kol": box(q(".door__leaf--right .door__handle")),
+    };
+    // Yazının metin genişliği (kutu tam genişlik olduğu için)
+    const hint = document.querySelector(".door__hint"); const rg = document.createRange(); rg.selectNodeContents(hint);
+    const hb = rg.getBoundingClientRect(); parts["yazı"] = { l: hb.left, r: hb.right, t: hb.top, b: hb.bottom };
+    const issues = [];
+    for (const [k, b] of Object.entries(parts)) if (b.l < 0 || b.r > vw + 1 || b.t < 0 || b.b > vh + 1) issues.push(`${k} ekran dışında`);
+    const L = q(".door__leaf--left"), R = q(".door__leaf--right");
+    if (parts["sol isim"].l < L.left || parts["sol isim"].r > L.right + 1) issues.push("Aslı kanadına sığmıyor");
+    if (parts["sağ isim"].l < R.left - 1 || parts["sağ isim"].r > R.right) issues.push("Berk kanadına sığmıyor");
+    const hit = (a, b) => a.l < b.r && b.l < a.r && a.t < b.b && b.t < a.b;
+    const pairs = [["sol isim", "mühür"], ["sağ isim", "mühür"], ["mühür", "yazı"], ["yazı", "sol kol"], ["yazı", "sağ kol"], ["sol isim", "yazı"], ["sağ isim", "yazı"]];
+    pairs.forEach(([a, b]) => { if (hit(parts[a], parts[b])) issues.push(`${a} ile ${b} üst üste`); });
+    if (hint.scrollWidth > hint.clientWidth + 1) issues.push("yazı taşıyor");
+    return issues;
+  });
+  r.forEach((m) => fail(dev, `kapı: ${m}`));
+}
+
 async function checkCountdown(page, dev) {
   const read = () => page.$$eval("[data-unit]", (els) => els.map((e) => e.textContent));
   const a = await read();
@@ -153,6 +190,7 @@ async function checkLinks(page, dev) {
     page.on("console", (m) => { if (m.type() === "error" && !/google|gstatic|maps/i.test(m.text())) errors.push(m.text()); });
     await page.goto(BASE_URL, { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
+    await checkDoor(page, d.name);
     await page.screenshot({ path: path.join(OUT, "door_" + d.name.replace(/[^\w]+/g, "_") + ".png") });
     await openDoor(page);
     // Tüm reveal animasyonlarını tetiklemek için sayfayı baştan sona kaydır

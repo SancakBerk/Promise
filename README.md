@@ -22,4 +22,4 @@ Adres `https://asliberkisteme.approds.com/` (alan adı `CNAME` dosyasında; GoDa
 npx http-server -p 8080 -s .
 NODE_PATH=$(npm root -g) node tests/responsive-test.cjs
 ```
-30 cihaz boyutunda (Galaxy Fold 280px'ten masaüstüne, yatay ekranlar dahil) yatay taşma, ekran dışı öğe, dokunma hedefi boyu, font yükleme, geri sayım, linkler, saat dilimi, tören anı mesajları, kopyalama ve paylaşma kontrol edilir. Ekran görüntüleri `tests/screenshots/` altına yazılır.
+51 cihaz boyutunda (Galaxy Fold 280px'ten masaüstüne; uzun ince 21:9, kısa geniş, yatay telefon ve tabletler dahil) giriş kapısının yerleşimi, yatay taşma, ekran dışı öğe, dokunma hedefi boyu, font yükleme, geri sayım, linkler, saat dilimi, tören anı mesajları, kopyalama ve paylaşma kontrol edilir. Ekran görüntüleri `tests/screenshots/` altına yazılır.
