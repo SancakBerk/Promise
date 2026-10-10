@@ -15,7 +15,7 @@ Dijital davetiyenin tasarımıyla (krem kağıt, zeytin yeşili el yazısı, sul
 
 ## Yayınlama (GitHub Pages)
 Settings → Pages → Source: "Deploy from a branch" → dalı ve `/ (root)` klasörünü seçin.
-Adres `https://sancakberk.github.io/Promise/` olur. Farklı bir adres kullanılırsa `index.html` içindeki `og:image` adresini güncelleyin.
+Adres `https://asliberkisteme.approds.com/` (alan adı `CNAME` dosyasında; GoDaddy'de `asliberkisteme` CNAME → `sancakberk.github.io`). Adres değişirse `CNAME` ile `index.html` içindeki `og:url` ve `og:image` adreslerini güncelleyin.
 
 ## Test
 ```bash
