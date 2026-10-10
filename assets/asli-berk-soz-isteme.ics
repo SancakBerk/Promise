@@ -1,0 +1,27 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Asli & Berk//Soz Isteme//TR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:asli-berk-soz-isteme-20261114@sancakberk.github.io
+DTSTAMP:20261010T000000Z
+DTSTART:20261114T150000Z
+DTEND:20261114T180000Z
+SUMMARY:Aslı & Berk Söz İsteme
+DESCRIPTION:Bu özel günümüzde sizleri de aramızda görmekten mutluluk 
+ duyarız.
+LOCATION:Faralya Davet Evi\, Şeyhli\, Pasinler Sok. No:19\, 34000 Pendik /
+  İstanbul
+BEGIN:VALARM
+TRIGGER:-P1D
+ACTION:DISPLAY
+DESCRIPTION:Yarın Aslı & Berk söz isteme töreni
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT2H
+ACTION:DISPLAY
+DESCRIPTION:Aslı & Berk söz isteme töreni 2 saat sonra
+END:VALARM
+END:VEVENT
+END:VCALENDAR
