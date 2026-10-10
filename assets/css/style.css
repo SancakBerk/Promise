@@ -112,8 +112,9 @@ p { margin: 0; }
   gap: 0 .14em;
   padding: .05em 0 .1em;
 }
-/* Great Vibes'ın büyük A'sı küçük harf gibi duruyor; B ile aynı boya getir */
-.cap-a { font-size: 1.28em; line-height: 0; }
+/* Great Vibes'ın büyük A'sı küçük "a" gibi okunuyor; Aslı'nın baş harfi
+   açıkça büyük A olsun diye yalnız bu harf Pinyon Script ile yazılır */
+.cap-a { font-family: "Pinyon Script", var(--font-script); font-size: 1.1em; line-height: 0; }
 .names__amp {
   font-size: .5em;
   color: var(--olive-soft);
