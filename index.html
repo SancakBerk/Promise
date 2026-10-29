@@ -173,8 +173,35 @@
       </div>
     </section>
 
+    <!-- ============ FOTOĞRAF YÜKLEME ============ -->
+    <!-- data-endpoint: Google Apps Script web uygulamasının adresi (bkz. apps-script/README.md) -->
+    <section class="section section--tinted" id="fotograflar" aria-labelledby="photos-title"
+             data-endpoint="">
+      <div class="ornament" aria-hidden="true"><span></span><svg viewBox="0 0 40 40"><use href="#daisy"/></svg><span></span></div>
+      <h2 class="section__title reveal" id="photos-title">Anılarımız</h2>
+      <p class="section__text reveal">O gün çektiğiniz fotoğrafları buradan bize gönderebilirsiniz. Hepsi bizim albümümüzde toplanacak.</p>
+
+      <div class="upload reveal" id="upload">
+        <label class="upload__field">
+          <span class="upload__label">Adınız <small>(isteğe bağlı)</small></span>
+          <input class="upload__input" type="text" id="upload-name" name="name" maxlength="40"
+                 autocomplete="name" enterkeyhint="done" placeholder="Örn. Ayşe Yılmaz">
+        </label>
+
+        <label class="btn btn--primary upload__pick" for="upload-files">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3 7.2 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.2L15 3H9zm3 5a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" fill="currentColor"/></svg>
+          Fotoğraf Seç veya Çek
+        </label>
+        <input class="upload__file" type="file" id="upload-files" accept="image/*" multiple>
+
+        <p class="upload__status" id="upload-status" role="status" aria-live="polite" hidden></p>
+        <ul class="upload__list" id="upload-list" aria-label="Yüklenen fotoğraflar"></ul>
+        <p class="upload__note">Fotoğraflar yüklenirken sayfayı kapatmayın.</p>
+      </div>
+    </section>
+
     <!-- ============ DAVETİYE GÖRSELİ ============ -->
-    <section class="section section--tinted" id="dijital-davetiye" aria-labelledby="invite-title">
+    <section class="section" id="dijital-davetiye" aria-labelledby="invite-title">
       <div class="ornament" aria-hidden="true"><span></span><svg viewBox="0 0 40 40"><use href="#daisy"/></svg><span></span></div>
       <h2 class="section__title reveal" id="invite-title">Dijital Davetiye</h2>
       <a class="invite-card reveal" href="assets/img/davetiye.jpg" target="_blank" rel="noopener">
@@ -230,5 +257,6 @@
   </svg>
 
   <script src="assets/js/main.js" defer></script>
+  <script src="assets/js/upload.js" defer></script>
 </body>
 </html>

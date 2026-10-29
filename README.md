@@ -12,6 +12,7 @@ Dijital davetiyenin tasarımıyla (krem kağıt, zeytin yeşili el yazısı, sul
 - Dijital davetiye görseli, indirme ve paylaşma (WhatsApp yedekli)
 - WhatsApp'ta paylaşınca görünen önizleme görseli
 - Mobilde aşağı kaydırınca çıkan "Yol Tarifi" butonu
+- Anılarımız: misafirler fotoğraflarını siteden yükler, Google Drive klasörüne kaydedilir (kurulum: `apps-script/README.md`)
 
 ## Yayınlama (GitHub Pages)
 Settings → Pages → Source: "Deploy from a branch" → dalı ve `/ (root)` klasörünü seçin.

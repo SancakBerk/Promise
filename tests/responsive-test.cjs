@@ -339,6 +339,91 @@ async function checkLinks(page, dev) {
     await ctx.close();
   }
 
+  console.log("\n== Fotoğraf yükleme (Drive betiği taklit edilerek) ==");
+  {
+    const FAKE = "https://script.google.com/macros/s/TEST/exec";
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    // Sayfayı, yükleme adresi dolu haliyle sun
+    await ctx.route((u) => u.href === BASE_URL || u.href === BASE_URL + "index.html", async (route) => {
+      const res = await route.fetch();
+      const html = (await res.text()).replace('data-endpoint=""', `data-endpoint="${FAKE}"`);
+      await route.fulfill({ response: res, body: html });
+    });
+    const got = [];
+    let failFirst = true;
+    await ctx.route(FAKE, async (route) => {
+      const body = JSON.parse(route.request().postData());
+      if (failFirst) { failFirst = false; return route.fulfill({ status: 500, contentType: "application/json", body: '{"ok":false}' }); }
+      got.push(body);
+      await new Promise((r) => setTimeout(r, 300));
+      route.fulfill({ status: 200, contentType: "application/json", body: '{"ok":true,"id":"x"}' });
+    });
+    const page = await ctx.newPage();
+    await page.goto(BASE_URL);
+    await openDoor(page);
+    await page.fill("#upload-name", "Ayşe Yılmaz");
+    // Biri büyük (5000x3500, ~6 MB) iki fotoğraf ve bir küçük PNG tarayıcıda üretilir
+    const files = await page.evaluate(async () => {
+      const make = async (w, h, type, q) => {
+        const c = document.createElement("canvas"); c.width = w; c.height = h;
+        const x = c.getContext("2d"), d = x.createImageData(w, h);
+        for (let i = 0; i < d.data.length; i += 4) { const v = (Math.random() * 255) | 0; d.data[i] = v; d.data[i + 1] = (i / 4) % 255; d.data[i + 2] = 255 - v; d.data[i + 3] = 255; }
+        x.putImageData(d, 0, 0);
+        const b = await new Promise((r) => c.toBlob(r, type, q));
+        const buf = new Uint8Array(await b.arrayBuffer());
+        let s = ""; for (let i = 0; i < buf.length; i += 0x8000) s += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+        return btoa(s);
+      };
+      return [await make(5000, 3500, "image/jpeg", 0.92), await make(1200, 900, "image/jpeg", 0.8), await make(400, 300, "image/png")];
+    });
+    await page.setInputFiles("#upload-files", [
+      { name: "IMG_0001.JPG", mimeType: "image/jpeg", buffer: Buffer.from(files[0], "base64") },
+      { name: "IMG_0002.JPG", mimeType: "image/jpeg", buffer: Buffer.from(files[1], "base64") },
+      { name: "ekran.png", mimeType: "image/png", buffer: Buffer.from(files[2], "base64") },
+    ]);
+    await page.waitForFunction(() => !document.querySelector(".upload__item:not(.is-done):not(.is-error)"), null, { timeout: 30000 });
+    const errorsShown = await page.$$eval(".upload__item.is-error", (e) => e.length);
+    if (errorsShown !== 1) fail("yükleme", `ilk istek hata verince 1 hata kutusu beklendi, ${errorsShown} geldi`);
+    await page.click(".upload__item.is-error .upload__retry");
+    await page.waitForFunction(() => document.querySelectorAll(".upload__item.is-done").length === 3, null, { timeout: 30000 });
+    const status = await page.textContent("#upload-status");
+    await page.screenshot({ path: path.join(OUT, "upload_done.png") });
+    await page.locator("#fotograflar").screenshot({ path: path.join(OUT, "upload_section.png") });
+    const jpegSize = (b64) => {
+      const b = Buffer.from(b64, "base64");
+      for (let i = 2; i < b.length;) { const m = b[i + 1], len = b.readUInt16BE(i + 2); if (m >= 0xc0 && m <= 0xc3) return [b.readUInt16BE(i + 7), b.readUInt16BE(i + 5)]; i += 2 + len; }
+      return null;
+    };
+    const big = got.find((g) => g.fileName === "IMG_0001.jpg");
+    const dims = big && jpegSize(big.data);
+    const okNames = got.length === 3 && got.every((g) => g.name === "Ayşe Yılmaz");
+    const okBig = dims && Math.max(...dims) <= 3200 && big.mimeType === "image/jpeg";
+    const small = got.find((g) => g.fileName === "IMG_0002.JPG");
+    const okSmall = small && Buffer.from(small.data, "base64").length === Buffer.from(files[1], "base64").length;
+    const okPng = got.some((g) => g.fileName === "ekran.png" && g.mimeType === "image/png");
+    if (!okNames) fail("yükleme", `3 fotoğraf misafir adıyla gelmeli: ${JSON.stringify(got.map((g) => [g.fileName, g.name]))}`);
+    if (!okBig) fail("yükleme", `büyük fotoğraf küçültülmeli: ${dims}`);
+    if (!okSmall) fail("yükleme", "küçük JPEG olduğu gibi gönderilmeli");
+    if (!okPng) fail("yükleme", "PNG olduğu gibi gönderilmeli");
+    if (!/Teşekkürler! 3 fotoğraf/.test(status)) fail("yükleme", `durum yazısı: ${status}`);
+    console.log(`  ${okNames && okBig && okSmall && okPng ? "✓" : "✗"} 3 fotoğraf · büyük olan ${dims && dims.join("x")} küçültüldü · hata sonrası tekrar dene çalıştı · "${status}"`);
+    await ctx.close();
+  }
+  {
+    // Adres girilmemişse misafire nazik bir uyarı çıkar, hiçbir şey gönderilmez
+    const ctx = await browser.newContext({ viewport: { width: 375, height: 667 } });
+    const page = await ctx.newPage();
+    await page.goto(BASE_URL);
+    await openDoor(page);
+    await page.setInputFiles("#upload-files", [{ name: "a.jpg", mimeType: "image/jpeg", buffer: Buffer.from("ffd8ffd9", "hex") }]);
+    const t = await page.textContent("#toast");
+    const items = await page.$$eval(".upload__item", (e) => e.length);
+    const ok = /henüz açılmadı/.test(t) && items === 0;
+    if (!ok) fail("yükleme", `adres yokken uyarı beklendi: "${t}", ${items} öğe`);
+    console.log(`  ${ok ? "✓" : "✗"} adres girilmemişken uyarı: "${t}"`);
+    await ctx.close();
+  }
+
   console.log("\n== JavaScript kapalıyken içerik görünür mü ==");
   {
     const ctx = await browser.newContext({ viewport: { width: 375, height: 667 }, javaScriptEnabled: false });
