@@ -16,4 +16,4 @@ Sitedeki "Anılarımız" bölümü, misafirlerin seçtiği fotoğrafları bu kü
 
 Klasörü değiştirmek için `Code.gs` içindeki `FOLDER_ID` değerini yeni klasör adresindeki `/folders/` sonrasındaki kısımla değiştirin ve **Dağıt → Dağıtımları yönet → düzenle → Yeni sürüm** ile yeniden yayınlayın (URL değişmez).
 
-Dosya adları `2026-11-14_19-32-05_Ayşe Yılmaz_IMG_1234.jpg` biçimindedir; misafir adını yazmadıysa "Misafir" yazar.
+Dosya adları `2026-11-14_19-32-05_Ayşe Yılmaz_IMG_1234.jpg` biçimindedir; misafir adı sorulmadığı için "Misafir" yazar.

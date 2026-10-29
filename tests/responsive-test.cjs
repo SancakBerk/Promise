@@ -361,7 +361,6 @@ async function checkLinks(page, dev) {
     const page = await ctx.newPage();
     await page.goto(BASE_URL);
     await openDoor(page);
-    await page.fill("#upload-name", "Ayşe Yılmaz");
     // Biri büyük (5000x3500, ~6 MB) iki fotoğraf ve bir küçük PNG tarayıcıda üretilir
     const files = await page.evaluate(async () => {
       const make = async (w, h, type, q) => {
@@ -396,12 +395,12 @@ async function checkLinks(page, dev) {
     };
     const big = got.find((g) => g.fileName === "IMG_0001.jpg");
     const dims = big && jpegSize(big.data);
-    const okNames = got.length === 3 && got.every((g) => g.name === "Ayşe Yılmaz");
+    const okNames = got.length === 3 && got.every((g) => !("name" in g));
     const okBig = dims && Math.max(...dims) <= 3200 && big.mimeType === "image/jpeg";
     const small = got.find((g) => g.fileName === "IMG_0002.JPG");
     const okSmall = small && Buffer.from(small.data, "base64").length === Buffer.from(files[1], "base64").length;
     const okPng = got.some((g) => g.fileName === "ekran.png" && g.mimeType === "image/png");
-    if (!okNames) fail("yükleme", `3 fotoğraf misafir adıyla gelmeli: ${JSON.stringify(got.map((g) => [g.fileName, g.name]))}`);
+    if (!okNames) fail("yükleme", `3 fotoğraf isimsiz gelmeli: ${JSON.stringify(got.map((g) => [g.fileName, g.name]))}`);
     if (!okBig) fail("yükleme", `büyük fotoğraf küçültülmeli: ${dims}`);
     if (!okSmall) fail("yükleme", "küçük JPEG olduğu gibi gönderilmeli");
     if (!okPng) fail("yükleme", "PNG olduğu gibi gönderilmeli");

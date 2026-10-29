@@ -17,17 +17,11 @@
   var MAX_SEND = 35e6;              // Apps Script istek sınırının (50 MB) güvenli altı
   var PARALLEL = 2;
 
-  var nameInput = document.getElementById("upload-name");
   var list = document.getElementById("upload-list");
   var statusEl = document.getElementById("upload-status");
 
   var queue = [], active = 0, done = 0, failed = 0, total = 0;
   var thumbs = Promise.resolve();
-
-  try { nameInput.value = localStorage.getItem("upload-name") || ""; } catch (e) {}
-  nameInput.addEventListener("change", function () {
-    try { localStorage.setItem("upload-name", nameInput.value.trim()); } catch (e) {}
-  });
 
   function setStatus() {
     statusEl.hidden = total === 0;
@@ -156,7 +150,7 @@
   }
 
   function pack(fileName, mimeType, data) {
-    return { fileName: fileName || "foto.jpg", mimeType: mimeType, data: data, name: nameInput.value.trim().slice(0, 40) };
+    return { fileName: fileName || "foto.jpg", mimeType: mimeType, data: data };
   }
 
   function jpegName(n) { return (n || "foto").replace(/\.[^.]+$/, "") + ".jpg"; }

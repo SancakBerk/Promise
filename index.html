@@ -182,15 +182,13 @@
       <p class="section__text reveal">O gün çektiğiniz fotoğrafları buradan bize gönderebilirsiniz. Hepsi bizim albümümüzde toplanacak.</p>
 
       <div class="upload reveal" id="upload">
-        <label class="upload__field">
-          <span class="upload__label">Adınız <small>(isteğe bağlı)</small></span>
-          <input class="upload__input" type="text" id="upload-name" name="name" maxlength="40"
-                 autocomplete="name" enterkeyhint="done" placeholder="Örn. Ayşe Yılmaz">
-        </label>
-
-        <label class="btn btn--primary upload__pick" for="upload-files">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3 7.2 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.2L15 3H9zm3 5a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" fill="currentColor"/></svg>
-          Fotoğraf Seç veya Çek
+        <!-- Boş fotoğraf karesi: dokununca galeri / kamera açılır -->
+        <label class="upload__pick" for="upload-files">
+          <span class="upload__plus" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </span>
+          <span class="upload__pick-title">Fotoğraf Ekle</span>
+          <span class="upload__pick-text">Dokunun, galeriden seçin veya çekin</span>
         </label>
         <input class="upload__file" type="file" id="upload-files" accept="image/*" multiple>
 
