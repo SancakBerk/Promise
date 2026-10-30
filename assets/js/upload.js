@@ -103,12 +103,9 @@
     job.el.classList.remove("is-error");
     badge.textContent = "Hazırlanıyor";
     prepare(job.file).then(function (prepared) {
-      badge.textContent = "%0";
-      return send(prepared, function (p) {
-        var pct = Math.round(p * 100);
-        fill.style.width = pct + "%";
-        badge.textContent = "%" + pct;
-      });
+      badge.textContent = "Gönderiliyor";
+      fill.style.width = "60%";
+      return send(prepared);
     }).then(function () {
       job.el.classList.add("is-done");
       badge.textContent = "";
@@ -197,22 +194,24 @@
     });
   }
 
-  /* Basit istek (text/plain) olarak gönderilir; Apps Script için CORS ön kontrolü gerekmez */
-  function send(payload, onProgress) {
-    return new Promise(function (resolve, reject) {
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", ENDPOINT);
-      xhr.setRequestHeader("Content-Type", "text/plain;charset=utf-8");
-      xhr.timeout = 180000;
-      xhr.upload.onprogress = function (e) { if (e.lengthComputable) onProgress(Math.min(.98, e.loaded / e.total)); };
-      xhr.onload = function () {
-        var res = null;
-        try { res = JSON.parse(xhr.responseText); } catch (e) {}
-        if (xhr.status >= 200 && xhr.status < 300 && res && res.ok) { onProgress(1); resolve(res); }
-        else reject(new Error((res && res.error) || "HTTP " + xhr.status));
-      };
-      xhr.onerror = xhr.ontimeout = function () { reject(new Error("network")); };
-      xhr.send(JSON.stringify(payload));
+  /* Basit istek olmalı: yükleme ilerlemesi dinlemek CORS ön kontrolü başlatır, Apps Script buna cevap vermez */
+  function send(payload) {
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var timer = ctrl && setTimeout(function () { ctrl.abort(); }, 180000);
+    return fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload),
+      signal: ctrl ? ctrl.signal : undefined
+    }).then(function (r) {
+      return r.json().catch(function () { return null; }).then(function (res) {
+        if (timer) clearTimeout(timer);
+        if (r.ok && res && res.ok) return res;
+        throw new Error((res && res.error) || "HTTP " + r.status);
+      });
+    }, function (err) {
+      if (timer) clearTimeout(timer);
+      throw err;
     });
   }
 

@@ -346,17 +346,19 @@ async function checkLinks(page, dev) {
     // Sayfayı, yükleme adresi dolu haliyle sun
     await ctx.route((u) => u.href === BASE_URL || u.href === BASE_URL + "index.html", async (route) => {
       const res = await route.fetch();
-      const html = (await res.text()).replace('data-endpoint=""', `data-endpoint="${FAKE}"`);
+      const html = (await res.text()).replace(/data-endpoint="[^"]*"/, `data-endpoint="${FAKE}"`);
       await route.fulfill({ response: res, body: html });
     });
     const got = [];
-    let failFirst = true;
+    let failFirst = true, preflight = false;
     await ctx.route(FAKE, async (route) => {
+      // Gerçek Apps Script OPTIONS isteğine cevap vermez: ön kontrol çıkarsa yükleme canlıda bozulur
+      if (route.request().method() === "OPTIONS") { preflight = true; return route.abort(); }
       const body = JSON.parse(route.request().postData());
-      if (failFirst) { failFirst = false; return route.fulfill({ status: 500, contentType: "application/json", body: '{"ok":false}' }); }
+      if (failFirst) { failFirst = false; return route.fulfill({ status: 500, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: '{"ok":false}' }); }
       got.push(body);
       await new Promise((r) => setTimeout(r, 300));
-      route.fulfill({ status: 200, contentType: "application/json", body: '{"ok":true,"id":"x"}' });
+      route.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: '{"ok":true,"id":"x"}' });
     });
     const page = await ctx.newPage();
     await page.goto(BASE_URL);
@@ -401,6 +403,7 @@ async function checkLinks(page, dev) {
     const okSmall = small && Buffer.from(small.data, "base64").length === Buffer.from(files[1], "base64").length;
     const okPng = got.some((g) => g.fileName === "ekran.png" && g.mimeType === "image/png");
     if (!okNames) fail("yükleme", `3 fotoğraf isimsiz gelmeli: ${JSON.stringify(got.map((g) => [g.fileName, g.name]))}`);
+    if (preflight) fail("yükleme", "CORS ön kontrolü çıktı; gerçek Apps Script bunu reddeder");
     if (!okBig) fail("yükleme", `büyük fotoğraf küçültülmeli: ${dims}`);
     if (!okSmall) fail("yükleme", "küçük JPEG olduğu gibi gönderilmeli");
     if (!okPng) fail("yükleme", "PNG olduğu gibi gönderilmeli");
@@ -411,6 +414,10 @@ async function checkLinks(page, dev) {
   {
     // Adres girilmemişse misafire nazik bir uyarı çıkar, hiçbir şey gönderilmez
     const ctx = await browser.newContext({ viewport: { width: 375, height: 667 } });
+    await ctx.route((u) => u.href === BASE_URL || u.href === BASE_URL + "index.html", async (route) => {
+      const res = await route.fetch();
+      route.fulfill({ response: res, body: (await res.text()).replace(/data-endpoint="[^"]*"/, 'data-endpoint=""') });
+    });
     const page = await ctx.newPage();
     await page.goto(BASE_URL);
     await openDoor(page);
